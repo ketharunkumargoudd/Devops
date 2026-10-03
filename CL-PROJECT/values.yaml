@@ -1,0 +1,22 @@
+# Helm values for kube-prometheus-stack (single-node learning setup)
+grafana:
+  adminPassword: "ChangeMe-123"   # CHANGE THIS
+  service:
+    type: NodePort
+    nodePort: 32000
+
+prometheus:
+  service:
+    type: NodePort
+    nodePort: 30090
+  prometheusSpec:
+    retention: 3d
+    # Let Prometheus pick up ServiceMonitors from any namespace/release
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    resources:
+      requests:
+        memory: 400Mi
+
+alertmanager:
+  enabled: false   # keep resource use low for the demo

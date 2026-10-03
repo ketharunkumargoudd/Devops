@@ -1,0 +1,17 @@
+# OPTIONAL: only works if your app exposes /actuator/prometheus
+# (Spring Boot Actuator + micrometer-registry-prometheus dependency, see README step 8)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: shop
+  namespace: shop
+  labels:
+    app: shop
+spec:
+  selector:
+    matchLabels:
+      app: shop
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s

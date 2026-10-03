@@ -1,0 +1,21 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+
+# Secrets / keys
+*.pem
+*.key
+id_rsa*
+.env
+
+# Build output
+target/
+*.class
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
