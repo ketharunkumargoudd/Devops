@@ -1,0 +1,70 @@
+# `docker run` vs `docker exec`
+
+| | `docker run` | `docker exec` |
+|---|---|---|
+| Does | **Creates a new container** from an image and starts it | **Runs a command inside an existing, running container** |
+| Needs | An image | A running container (by name or ID) |
+| Result | A new container appears in `docker ps -a` | No new container; a temporary extra process runs inside the existing one |
+| Analogy | Building a new house | Walking into a house that already exists |
+
+## Examples
+
+```bash
+docker run -d --name web -p 8080:80 nginx
+```
+Takes the `nginx` image, creates a container called `web`, and starts it.
+
+```bash
+docker exec web ls /usr/share/nginx/html
+docker exec -it web bash
+```
+Reaches into the already-running `web` container to list files, or to open a shell inside it. Nothing new is created.
+
+## What happens to each
+
+**`docker run`**
+- Pulls the image if missing, creates the container, starts its main process.
+- The container lives as long as that main process runs.
+- Running the same command twice creates **two** containers.
+
+**`docker exec`**
+- Starts an *extra* process in the container's namespace.
+- The container's main process keeps running unchanged.
+- When your command (or shell) ends, only that extra process ends. The container stays up.
+
+You can see this: `docker exec -it web bash`, then `exit`, and `docker ps` still shows `web` as `Up`.
+
+## Exec needs a running container
+
+```bash
+docker stop web
+docker exec web ls
+# Error: container ... is not running
+```
+
+Start it first with `docker start web`. `docker run` has no such limit, because it makes a fresh container.
+
+## Common mix-ups
+
+| You want to... | Use |
+|---|---|
+| Start a new nginx server | `docker run` |
+| Look at files inside the running nginx | `docker exec` |
+| Open a shell in a running container | `docker exec -it <name> bash` (or `sh`) |
+| Try out a throwaway shell on busybox | `docker run -it --rm busybox sh` |
+| Restart a stopped container | `docker start <name>` (not `run`, which would make a new one) |
+| Run a one-off command in a fresh container | `docker run --rm busybox echo hi` |
+
+## Tied to your earlier lab
+
+```bash
+docker run -d --name tmp1 busybox sleep 300                    # creates the container
+docker exec tmp1 sh -c "echo 'important data' > /data.txt"     # writes a file inside it
+```
+
+`run` made the container and kept it alive with `sleep 300`. `exec` then used it to write the file. That's why the lab needed both.
+
+## Quick memory trick
+
+- **`run`** = create + start (a new container).
+- **`exec`** = execute inside (a container that's already running).
