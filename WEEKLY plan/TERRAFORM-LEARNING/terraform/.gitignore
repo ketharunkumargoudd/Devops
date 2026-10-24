@@ -1,0 +1,9 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars.secret
+override.tf
+override.tf.json
+# Keep the lock file committed:  .terraform.lock.hcl
